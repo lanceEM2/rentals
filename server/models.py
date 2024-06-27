@@ -77,10 +77,11 @@ class Agent(db.Model, SerializerMixin):
     description = db.Column(db.String)
     reviews = db.Column(db.Integer)
     zipcode = db.Column(db.String)
-    no_of_properties = db.Column(db.Integer)
+    no_of_properties = db.Column(db.Integer, default=0)  # Default value set to 0
 
     properties = db.relationship('Property', back_populates='agent', cascade='all, delete-orphan')
     lands = db.relationship('Land', back_populates='agent', cascade='all, delete-orphan')
+    payments = db.relationship('Payment', back_populates='agent')
 
     def to_dict(self):
         return {
@@ -94,8 +95,21 @@ class Agent(db.Model, SerializerMixin):
             'zipcode': self.zipcode,
             'no_of_properties': self.no_of_properties,
             'properties': [property.to_dict() for property in self.properties],
-            'lands': [land.to_dict() for land in self.lands]
+            'lands': [land.to_dict() for land in self.lands],
+            'payments': [payment.to_dict() for payment in self.payments]
+
         }
+
+class Payment(db.Model, SerializerMixin):
+    __tablename__ = 'payments'
+
+    id = db.Column(db.Integer, primary_key=True)
+    agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))
+    amount = db.Column(db.Float)
+    payment_date = db.Column(db.DateTime, default=datetime.utcnow)
+    status = db.Column(db.String, default='Pending')
+
+    agent = db.relationship('Agent', back_populates='payments')
 
 class TokenBlocklist(db.Model):
     __tablename__ = 'token_blocklist'

@@ -7,6 +7,7 @@ function PropertyFilter({ data, onFilter }) {
     const [landsize, setLandSize] = useState("Any");
 
     const filterData = useCallback(() => {
+        console.log("Initial data:", data);
         let filteredData = data;
 
         if (saleType !== "Any") {
@@ -25,16 +26,17 @@ function PropertyFilter({ data, onFilter }) {
             filteredData = filteredData.filter(item => item.size === landsize);
         }
 
+        console.log("Filtered data:", filteredData);
         onFilter(filteredData);
     }, [saleType, minPrice, maxPrice, landsize, data, onFilter]);
 
     useEffect(() => {
-        filterData();
-    }, [saleType, minPrice, bathrooms, landsize, filterData]);
+        const debounceFilter = setTimeout(() => {
+            filterData();
+        }, 300);
 
-    useEffect(() => {
-        filterData();
-    }, [data, filterData]);
+        return () => clearTimeout(debounceFilter);
+    }, [filterData]);
 
     return (
         <>
@@ -51,12 +53,12 @@ function PropertyFilter({ data, onFilter }) {
                 <label htmlFor="minPrice">Min Price</label>
                 <select onChange={(e) => setMinPrice(e.target.value)} name="minPrice" id="minPrice">
                     <option value="Any">Any</option>
-                    <option value="KSH20000">KSH 0</option>
+                    <option value="KSH20000">KSH 20000</option>
                     <option value="KSH50000">KSH 50000</option>
                     <option value="KSH100000">KSH 100000</option>
                     <option value="KSH250000">KSH 250000</option>
                     <option value="KSH500000">KSH 500000</option>
-                    <option value="KSH500000">KSH 1000000</option>
+                    <option value="KSH1000000">KSH 1000000</option>
                 </select>
             </div>
             <div>
@@ -66,9 +68,9 @@ function PropertyFilter({ data, onFilter }) {
                     <option value="KSH50000">KSH 50000</option>
                     <option value="KSH250000">KSH 250000</option>
                     <option value="KSH500000">KSH 500000</option>
-                    <option value="KSH500000">KSH 1000000</option>
-                    <option value="KSH500000">KSH 5000000</option>
-                    <option value="KSH500000">KSH 10000000</option>
+                    <option value="KSH1000000">KSH 1000000</option>
+                    <option value="KSH5000000">KSH 5000000</option>
+                    <option value="KSH10000000">KSH 10000000</option>
                 </select>
             </div>
             <div>

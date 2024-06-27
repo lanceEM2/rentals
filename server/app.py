@@ -10,7 +10,7 @@ from flask_restful import Api, Resource
 from flask_cors import CORS
 from flask_bcrypt import check_password_hash
 from werkzeug.security import generate_password_hash
-from models import db, Customer, Property, Agent, Land, TokenBlocklist
+from models import db, Customer, Property, Agent, Land, Payment, TokenBlocklist
 
 # configuration
 app = Flask(__name__)
@@ -34,6 +34,13 @@ db.init_app(app)
 bcrypt = Bcrypt(app)
 
 api = Api(app)
+
+# Creating JWT Tokens with User Type
+
+def create_tokens(user, user_type):
+    additional_claims = {'user_type': user_type}
+    access_token = create_access_token(identity=user.id, additional_claims=additional_claims)
+    return access_token
 
 
 # customer/visitor signup
@@ -66,7 +73,7 @@ class CustomerSignup(Resource):
         db.session.add(new_customer)
         db.session.commit()
 
-        access_token = create_access_token(identity=new_customer.id)
+        access_token = create_tokens(new_customer, 'customer')
 
         return make_response(jsonify({'message': 'Customer signup successful'}), 201, {'Authorization': f'Bearer {access_token}'})
 
@@ -88,35 +95,14 @@ class CustomerLogin(Resource):
 
         if customer and bcrypt.check_password_hash(customer.password, password):
 
-            access_token = create_access_token(identity=customer.id)
+            # Create the JWT token with an additional claim for user_type
+            access_token = create_access_token(identity=customer.id, additional_claims={'user_type': 'customer'})
 
             return make_response(jsonify({'message': 'Customer login successful'}), 200, {'Authorization': f'Bearer {access_token}'})
 
         abort(401, 'Invalid username or password')
 
 api.add_resource(CustomerLogin, '/auth/login')
-
-
-# function to enable signout
-@jwt.token_in_blocklist_loader
-def check_if_token_in_blacklist(jwt_header, jwt_payload):
-    jti = jwt_payload['jti']
-    token = TokenBlocklist.query.filter_by(jti=jti).first()
-    return token is not None
-
-# customer/visitor signout
-
-class CustomerSignout(Resource):
-
-    @jwt_required()
-    def post(self):
-        jti = get_jwt()["jti"]
-        now = datetime.utcnow()
-        db.session.add(TokenBlocklist(jti=jti, created_at=now))
-        db.session.commit()
-        return make_response(jsonify({'message': 'Customer signout successful'}), 200)
-
-api.add_resource(CustomerSignout, '/auth/signout')
 
 
 # agent signup
@@ -136,9 +122,9 @@ class AgentSignup(Resource):
             phone = data['phone'],
             email = data['email'],
             description = data['description'],
-            reviews = data['reviews'],
-            zipcode = data['zipcode'],
-            no_of_properties = data['no_of_properties']
+            reviews = data.get('reviews', 0),  # Default reviews to 0 if not provided
+            zipcode = data['zipcode']
+            # no_of_properties is not required as input
         )
 
         agent = Agent.query.filter(Agent.email == new_agent.email).first()
@@ -156,7 +142,7 @@ class AgentSignup(Resource):
         db.session.add(new_agent)
         db.session.commit()
 
-        access_token = create_access_token(identity=new_agent.id)
+        access_token = create_tokens(new_agent, 'agent')
 
         return make_response(jsonify({'message': 'Agent signup successful'}), 201, {'Authorization': f'Bearer {access_token}'})
 
@@ -178,13 +164,69 @@ class AgentLogin(Resource):
 
         if agent and bcrypt.check_password_hash(agent.password, password):
 
-            access_token = create_access_token(identity=agent.id)
+            # Create the JWT token with an additional claim for user_type
+            access_token = create_access_token(identity=agent.id, additional_claims={'user_type': 'agent'})
 
             return make_response(jsonify({'message': 'Agent login successful'}), 200, {'Authorization': f'Bearer {access_token}'})
 
         abort(401, 'Invalid username or password')
 
 api.add_resource(AgentLogin, '/agent/login')
+
+
+# function to enable signout
+@jwt.token_in_blocklist_loader
+def check_if_token_in_blacklist(jwt_header, jwt_payload):
+    jti = jwt_payload['jti']
+    token = TokenBlocklist.query.filter_by(jti=jti).first()
+    return token is not None
+
+# everyone signout
+
+class Signout(Resource):
+
+    @jwt_required()
+    def delete(self):
+        jti = get_jwt()["jti"]  # JWT ID
+        user_id = get_jwt_identity()
+
+        # Add the token to the blocklist
+        token = TokenBlocklist(jti=jti, created_at=datetime.utcnow())
+        db.session.add(token)
+        db.session.commit()
+
+        return make_response(jsonify({'message': 'Successfully signed out'}), 200)
+
+api.add_resource(Signout, '/signout')
+
+
+# everyone logout
+
+class Logout(Resource):
+
+    @jwt_required()
+    def delete(self):
+        user_id = get_jwt_identity()
+        # enter user_type manually
+        user_type = request.json.get('user_type')
+
+        if user_type == 'customer':
+            user = Customer.query.get(user_id)
+        elif user_type == 'agent':
+            user = Agent.query.get(user_id)
+        else:
+            return make_response(jsonify({'error': 'Invalid user type'}), 400)
+
+        if not user:
+            return make_response(jsonify({'error': 'User not found'}), 404)
+
+        db.session.delete(user)
+        db.session.commit()
+
+        response_dict = {'message': 'User data deleted successfully.'}
+        return make_response(jsonify(response_dict), 200)
+
+api.add_resource(Logout, '/logout')
 
 
 # gets/fetches an agent's properties
@@ -241,6 +283,9 @@ class AgentNewPropertyOrLand(Resource):
         agent = Agent.query.get(current_user_id)
         if not agent:
             return make_response(jsonify({'error': 'Unauthorized access'}), 403)
+
+        if agent.no_of_properties >= 2:
+            return make_response(jsonify({'error': 'Payment required for adding more properties'}), 402)
 
         data = request.get_json()
 
@@ -428,6 +473,50 @@ class UpdateAgentData(Resource):
 api.add_resource(UpdateAgentData, '/agent-data/update') 
 
 
+# agent payment 
+
+class AgentPayment(Resource):
+
+    @jwt_required()
+    def post(self):
+        current_user_id = get_jwt_identity()
+        agent = Agent.query.get(current_user_id)
+        if not agent:
+            return make_response(jsonify({'error': 'Unauthorized access'}), 403)
+
+        data = request.get_json()
+        amount = data.get('amount')
+        # Mock payment processing logic
+        payment_status = 'Completed'
+
+        new_payment = Payment(
+            agent_id=current_user_id,
+            amount=amount,
+            status=payment_status
+        )
+
+        db.session.add(new_payment)
+        db.session.commit()
+
+        # Generate PDF after successful payment
+        pdf_path = generate_payment_pdf(agent, new_payment)
+
+        return make_response(jsonify({'message': 'Payment successful', 'pdf': pdf_path}), 201)
+
+api.add_resource(AgentPayment, '/agent/payment')
+
+def generate_payment_pdf(agent, payment):
+    # Mock function to generate a PDF receipt
+    # Use a library like ReportLab or WeasyPrint to generate the actual PDF
+    pdf_path = f'receipts/payment_{payment.id}.pdf'
+    with open(pdf_path, 'w') as f:
+        f.write(f"Receipt for {agent.first_name} {agent.last_name}\n")
+        f.write(f"Amount: {payment.amount}\n")
+        f.write(f"Date: {payment.payment_date}\n")
+        f.write(f"Status: {payment.status}\n")
+    return pdf_path
+
+
 # gets/fetches all properties and lands - to be viewed by everyone
 
 class GetPropertiesAndLands(Resource):
@@ -469,7 +558,7 @@ class GetAgents(Resource):
 
         return make_response(jsonify(agents), 200)
 
-api.add_resource(GetAgents, '/agents')      
+api.add_resource(GetAgents, '/agents') 
 
 
 if __name__ == '__main__':

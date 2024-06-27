@@ -9,6 +9,7 @@ function PropertyFilter({ data, onFilter }) {
     const [bathrooms, setBathrooms] = useState("Any");
 
     const filterData = useCallback(() => {
+        console.log("Initial data:", data);
         let filteredData = data;
 
         if (saleType !== "Any") {
@@ -20,11 +21,11 @@ function PropertyFilter({ data, onFilter }) {
         }
 
         if (minPrice !== "Any") {
-            filteredData = filteredData.filter(item => item.price >= parseInt(minPrice));
+            filteredData = filteredData.filter(item => item.price >= parseInt(minPrice.replace("KSH", "")));
         }
 
         if (maxPrice !== "Any") {
-            filteredData = filteredData.filter(item => item.price <= parseInt(maxPrice));
+            filteredData = filteredData.filter(item => item.price <= parseInt(maxPrice.replace("KSH", "")));
         }
 
         if (bedrooms !== "Any") {
@@ -35,12 +36,17 @@ function PropertyFilter({ data, onFilter }) {
             filteredData = filteredData.filter(item => item.bathroom >= parseInt(bathrooms));
         }
 
+        console.log("Filtered data:", filteredData);
         onFilter(filteredData);
     }, [type, saleType, minPrice, maxPrice, bedrooms, bathrooms, data, onFilter]);
 
     useEffect(() => {
-        filterData();
-    }, [type, saleType, minPrice, maxPrice, bedrooms, bathrooms, filterData]);
+        const debounceFilter = setTimeout(() => {
+            filterData();
+        }, 300);
+
+        return () => clearTimeout(debounceFilter);
+    }, [filterData]);
 
     return (
         <>
@@ -58,8 +64,8 @@ function PropertyFilter({ data, onFilter }) {
                 <label htmlFor="saleType">Sale Type</label>
                 <select onChange={(e) => setSaleType(e.target.value)} name="saleType" id="saleType">
                     <option value="Any">Any</option>
-                    <option value="sale">For sale</option>
-                    <option value="rent">For rent</option>
+                    <option value="sale">for sale</option>
+                    <option value="rent">for rent</option>
                 </select>
             </div>
 
@@ -84,7 +90,7 @@ function PropertyFilter({ data, onFilter }) {
                     <option value="KSH500000">KSH 500000</option>
                     <option value="KSH1000000">KSH 1000000</option>
                     <option value="KSH5000000">KSH 5000000</option>
-                    <option value="KSH10000000">KSH 25000000</option>
+                    <option value="KSH10000000">KSH 10000000</option>
                 </select>
             </div>
             <div>

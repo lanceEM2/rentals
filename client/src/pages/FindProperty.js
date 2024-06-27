@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
 import PropertyFilter from "../components/PropertyFilter";
 
 function FindProperty() {
@@ -45,15 +44,11 @@ function FindProperty() {
   return (
     <>
       <div>
-        <h1>Find Property For Sale/Rent</h1>
-        <Link to="/property/sale">For Sale</Link>
-        <Link to="/property/rent">For Rent</Link>
-
-        <h1> Find Land For Sale/Rent</h1>
+        <h1>Filter By Property</h1>
 
         <div>
           <form onSubmit={handleSubmit}>
-            <label htmlFor="name">Enter Location Name</label>
+            <label htmlFor="name">Enter Property Location</label>
             <input
               type="text"
               id="name"
@@ -74,7 +69,6 @@ function FindProperty() {
             <h2>Properties in {cityName}</h2>
             {filteredProperties.map(property => (
               <div key={property.id}>
-                <p>{property.description}</p>
                 <img src={property.image} alt={property.description} />
                 <p>Location: {property.location}</p>
                 <p>Price: {property.price}</p>
@@ -88,7 +82,7 @@ function FindProperty() {
           </div>
         )}
         {errorMessage && <div>{errorMessage}</div>}
-
+      
       </div>
     </>
   );
