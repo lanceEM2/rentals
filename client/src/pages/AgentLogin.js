@@ -1,14 +1,14 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-function CustomerLogin() {
+function AgentLogin() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
   function handleSubmit(e) {
     e.preventDefault();
-    fetch("/auth/login", {
+    fetch("/agent/login", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
@@ -23,8 +23,8 @@ function CustomerLogin() {
         const token = r.headers.get('Authorization').split(' ')[1];
         // Save the token in local storage
         localStorage.setItem("token", token);
-        // Navigate to CustomerpersonCars component after a successful login
-        navigate('/');
+        // Navigate to AgentProfile after a successful login
+        navigate('agent/profile');
       }
       if (r.status === 401) {
         alert("Wrong data input!");
@@ -39,7 +39,7 @@ function CustomerLogin() {
         <h1>Login</h1>
         <label htmlFor="email">Email</label>
         <input
-          type="email"
+          type="text"
           id="email"
           autoComplete="off"
           value={email}
@@ -59,4 +59,4 @@ function CustomerLogin() {
   );
 }
 
-export default CustomerLogin;
+export default AgentLogin;

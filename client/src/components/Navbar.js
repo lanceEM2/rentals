@@ -9,10 +9,12 @@ function NavBar() {
         </div>
         <div className="nav-links">
             <Link to="/">Home</Link>
-            <Link to="/property/sale">For Sale</Link>
-            <Link to="/property/rent">For Rent</Link>
-            <Link to="/login">Login</Link>
-            <Link to="/signup">Register</Link>
+            <Link to="/properties/sale">Property For Sale</Link>
+            <Link to="/properties/rent">Property For Rent</Link>
+            <Link to="/lands/sale">Land For Sale</Link>
+            <Link to="/lands/rent">Land For Rent</Link>
+            <Link to="/signup">Visitor Hub</Link>
+            <Link to="/agent/signup">Agent Hub</Link>
         </div>
     </header>
   );

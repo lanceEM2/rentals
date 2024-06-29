@@ -39,7 +39,7 @@ function CustomerSignup() {
         <h1>Signup</h1>
         <label htmlFor="email">Email</label>
         <input
-          type="text"
+          type="email"
           id="email"
           autoComplete="off"
           value={email}
