@@ -4,6 +4,7 @@ function AgentProfileUpdate() {
     const [first_name, setFirst_name] = useState("");
     const [last_name, setLast_name] = useState("");
     const [email, setEmail] = useState("");
+    const [description, setDescription] = useState("");
     const [phone, setPhone] = useState("");
     const [password, setPassword] = useState("");
     const [zipcode, setZipcode] = useState("");
@@ -24,6 +25,7 @@ function AgentProfileUpdate() {
                 first_name,
                 last_name,
                 email,
+                description,
                 phone,
                 password,
                 zipcode
@@ -68,6 +70,13 @@ function AgentProfileUpdate() {
                     id="phone"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
+                />
+                <label htmlFor="description">Enter Description</label>
+                <input
+                    type="text"
+                    id="description"
+                    value={description}
+                    onChange={(e) => setDescription(e.target.value)}
                 />
                 <label htmlFor="password">Enter password</label>
                 <input

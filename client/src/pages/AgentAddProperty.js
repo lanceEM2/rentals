@@ -118,7 +118,9 @@ function AgentAddProperty() {
                 />
                 <button type="submit">Add Property</button>
             </form>
+
         </div>
+
     );
 }
 

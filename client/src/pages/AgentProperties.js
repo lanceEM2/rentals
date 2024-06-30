@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function AgentProperties() {
     const [data, setData] = useState(null);
@@ -46,6 +47,10 @@ function AgentProperties() {
                     <p>Status: {property.status}</p>
                 </div>
             ))}
+
+            <Link to="/agent/property-update">Update Property</Link>
+            <Link to="/agent/property-delete">Delete Property</Link>
+
         </>
     );
 }

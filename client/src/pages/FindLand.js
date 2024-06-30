@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+// import { Link } from "react-router-dom";
 import LandFilter from "../components/LandFilter";
 
 function Findland() {
@@ -46,8 +46,8 @@ function Findland() {
     <>
       <div>
         <h1>Find land For Sale/Rent</h1>
-        <Link to="/land/sale">For Sale</Link>
-        <Link to="/land/rent">For Rent</Link>
+        {/* <Link to="/land/sale">For Sale</Link>
+        <Link to="/land/rent">For Rent</Link> */}
 
         <div>
           <form onSubmit={handleSubmit}>

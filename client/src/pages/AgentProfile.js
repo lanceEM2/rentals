@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function AgentProfile() {
     const [data, setData] = useState(null);
@@ -43,6 +44,12 @@ function AgentProfile() {
                 <p>Zipcode: {data.zipcode}</p>
                 <p>No of Properties: {data.no_of_properties}</p>
             </div>
+
+            <Link to="/agent/profile-update">Update Profile</Link>
+            <Link to="/agent/add-property">Add Property</Link>
+            <Link to="/agent/add-land">Add Land</Link>
+            <Link to="/agent/properties">My Properties</Link>
+            <Link to="/agent/lands">My Lands</Link>
         </>
     );
 }

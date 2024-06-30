@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { Link } from "react-router-dom";
 
 function AgentLands() {
     const [data, setData] = useState(null);
@@ -45,6 +46,10 @@ function AgentLands() {
                     <p>Status: {land.status}</p>
                 </div>
             ))}
+
+            <Link to="/agent/land-update">Update Land</Link>
+            <Link to="/agent/land-delete">Delete Land</Link>
+
         </>
     );
 }

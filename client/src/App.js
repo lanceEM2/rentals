@@ -14,6 +14,10 @@ import AgentLands from "./pages/AgentLands";
 import AgentProfileUpdate from "./pages/AgentProfileUpdate";
 import AgentAddProperty from "./pages/AgentAddProperty";
 import AgentAddLand from "./pages/AgentAddLand";
+import AgentPropertyUpdate from "./pages/AgentPropertyUpdate";
+import AgentLandUpdate from "./pages/AgentLandUpdate";
+import AgentDeleteProperty from "./pages/AgentDeleteProperty";
+import AgentDeleteLand from "./pages/AgentDeleteLand";
 import PropertiesForSale from "./pages/PropertiesForSale";
 import PropertiesForRent from "./pages/PropertiesForRent";
 import LandsForSale from "./pages/LandsForSale";
@@ -42,6 +46,10 @@ function App() {
         <Route path="/agent/add-land" element={<AgentAddLand />} />
         <Route path="/agent/properties" element={<AgentProperties />} />
         <Route path="/agent/lands" element={<AgentLands/>} />
+        <Route path="/agent/property-update" element={<AgentPropertyUpdate/>} />
+        <Route path="/agent/land-update" element={<AgentLandUpdate/>} />
+        <Route path="/agent/property-delete" element={<AgentDeleteProperty/>} />
+        <Route path="/agent/land-delete" element={<AgentDeleteLand/>} />
         <Route path="/about-us" element={<AboutUs />} />
         <Route path="/contact-us" element={<ContactUs />} />
       </Routes>
