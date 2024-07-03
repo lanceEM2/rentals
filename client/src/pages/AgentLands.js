@@ -41,7 +41,7 @@ function AgentLands() {
                     <p>Price: {land.price}</p>
                     <p>Size: {land.size}</p>
                     <p>Image: {land.image}</p>
-                    <p>land Category: {land.property_category}</p>
+                    <p>Property Category: {land.property_category}</p>
                     <p>Sale Type: {land.sale_type}</p>
                     <p>Status: {land.status}</p>
                 </div>

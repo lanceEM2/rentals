@@ -15,13 +15,15 @@ function AgentAddLand() {
         e.preventDefault();
         const token = localStorage.getItem("token");
 
-        fetch("/land/add", {
+        fetch("/resources/add", {
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,  // Include the token in the headers
             },
             body: JSON.stringify({
+                resource_type: 'land',  // Specify the resource type
+                property_category: 'land',  // Specify the property category
                 location,
                 price,
                 description,

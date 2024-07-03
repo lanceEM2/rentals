@@ -459,9 +459,8 @@ class UpdateAgentData(Resource):
 
         for attr, value in data.items():
             if attr == 'password':
-                # Hash the password before setting it
                 value = bcrypt.generate_password_hash(value)
-            if hasattr(agent, attr):
+            if value and hasattr(agent, attr):  # Update only if the value is provided
                 setattr(agent, attr, value)
 
         db.session.commit()

@@ -47,7 +47,7 @@ function CustomerSignup() {
         />
         <label htmlFor="password">Password</label>
         <input
-          type="string"
+          type="text"
           id="password"
           value={password}
           onChange={(e) => setPassword(e.target.value)}

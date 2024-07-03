@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function AgentPropertyUpdate() {
     const [location, setLocation] = useState("");
@@ -11,11 +11,52 @@ function AgentPropertyUpdate() {
     const [propertyCategory, setPropertyCategory] = useState("");
     const [status, setStatus] = useState("");
 
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = () => {
+        const token = localStorage.getItem('token');
+
+        fetch('/agent/properties', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            setLocation(data.location);
+            setSaleType(data.sale_type);
+            setPrice(data.price);
+            setBedroom(data.bedroom);
+            setBathroom(data.bathroom);
+            setDescription(data.description);
+            setPropertyCategory(data.property_category);
+            setImage(data.image);
+            setStatus(data.status)
+        })
+        .catch((error) => console.error("Error fetching property data:", error));
+    };
+
     function handleSubmit(e) {
         e.preventDefault();
 
         // Retrieve the token from localStorage or another storage method you use
         const token = localStorage.getItem('token');
+
+        const updatedData = {
+            location,
+            sale_type: saleType,
+            price,
+            description,
+            bedroom,
+            bathroom,
+            property_category: propertyCategory,
+            image,
+            status
+        };
 
         fetch("/resources/update", {
             method: "PATCH",
@@ -24,15 +65,8 @@ function AgentPropertyUpdate() {
                 "Authorization": `Bearer ${token}`  // Include the token in the headers
             },
             body: JSON.stringify({
-                location,
-                saleType,
-                price,
-                description,
-                bedroom,
-                bathroom,
-                image,
-                propertyCategory,
-                status
+                resource_type: 'property',  // Specify the resource type
+                updatedData
             }),
         }).then((r) => {
             if (r.ok) {

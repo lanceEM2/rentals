@@ -24,7 +24,7 @@ function AgentLogin() {
         // Save the token in local storage
         localStorage.setItem("token", token);
         // Navigate to AgentProfile after a successful login
-        navigate('agent/profile');
+        navigate('/agent/profile');
       }
       if (r.status === 401) {
         alert("Wrong data input!");

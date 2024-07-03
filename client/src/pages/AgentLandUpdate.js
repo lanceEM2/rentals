@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function AgentLandUpdate() {
     const [location, setLocation] = useState("");
@@ -7,14 +7,50 @@ function AgentLandUpdate() {
     const [description, setDescription] = useState("");
     const [size, setSize] = useState("");
     const [image, setImage] = useState("");
-    const [propertyCategory, setPropertyCategory] = useState("");
     const [status, setStatus] = useState("");
+
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = () => {
+        const token = localStorage.getItem('token');
+
+        fetch('/agent/lands', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            setLocation(data.location);
+            setSaleType(data.sale_type);
+            setPrice(data.price);
+            setDescription(data.description);
+            setSize(data.size);
+            setImage(data.image);
+            setStatus(data.status)
+        })
+        .catch((error) => console.error("Error fetching land data:", error));
+    };
 
     function handleSubmit(e) {
         e.preventDefault();
 
         // Retrieve the token from localStorage or another storage method you use
         const token = localStorage.getItem('token');
+
+        const updatedData = {
+            location,
+            saleType,
+            price,
+            description,
+            size,
+            image,
+            status
+        };
 
         fetch("/resources/update", {
             method: "PATCH",
@@ -23,14 +59,8 @@ function AgentLandUpdate() {
                 "Authorization": `Bearer ${token}`  // Include the token in the headers
             },
             body: JSON.stringify({
-                location,
-                saleType,
-                price,
-                description,
-                size,
-                image,
-                propertyCategory,
-                status
+                resource_type: 'land',  // Specify the resource type
+                updatedData
             }),
         }).then((r) => {
             if (r.ok) {
@@ -86,13 +116,6 @@ function AgentLandUpdate() {
                     id="size"
                     value={size}
                     onChange={(e) => setSize(e.target.value)}
-                />
-                <label htmlFor="propertyCategory">Enter Property Category</label>
-                <input
-                    type="propertyCategory"
-                    id="propertyCategory"
-                    value={propertyCategory}
-                    onChange={(e) => setPropertyCategory(e.target.value)}
                 />
                 <label htmlFor="status">Enter Status</label>
                 <input

@@ -6,6 +6,7 @@ function AgentAddProperty() {
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");
     const [bedroom, setBedroom] = useState("");
+    const [propertyCategory, setPropertyCategory] = useState("");
     const [bathroom, setBathroom] = useState("");
     const [image, setImage] = useState("");
     const [saleType, setSaleType] = useState("");
@@ -16,18 +17,20 @@ function AgentAddProperty() {
         e.preventDefault();
         const token = localStorage.getItem("token");
 
-        fetch("/property/add", {
+        fetch("/resources/add", {  // Updated endpoint
             method: "POST",
             headers: {
                 'Content-Type': 'application/json',
                 'Authorization': `Bearer ${token}`,  // Include the token in the headers
             },
             body: JSON.stringify({
+                resource_type: 'property',  // Specify the resource type
                 location,
                 price,
                 description,
                 bedroom,
                 bathroom,
+                property_category: propertyCategory,
                 image,
                 sale_type: saleType, // Ensure the key matches the backend's expected field name
                 status,
@@ -92,6 +95,14 @@ function AgentAddProperty() {
                     onChange={(e) => setBathroom(e.target.value)}
                     autoComplete="off"
                 />
+                <label htmlFor="property">Property Category</label>
+                <input
+                    type="text"
+                    id="property"
+                    value={propertyCategory}
+                    onChange={(e) => setPropertyCategory(e.target.value)}
+                    autoComplete="off"
+                />
                 <label htmlFor="image">Image</label>
                 <input
                     type="text"
@@ -118,9 +129,7 @@ function AgentAddProperty() {
                 />
                 <button type="submit">Add Property</button>
             </form>
-
         </div>
-
     );
 }
 

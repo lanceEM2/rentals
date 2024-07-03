@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 
 function AgentProfileUpdate() {
     const [first_name, setFirst_name] = useState("");
@@ -9,27 +9,57 @@ function AgentProfileUpdate() {
     const [password, setPassword] = useState("");
     const [zipcode, setZipcode] = useState("");
 
+    useEffect(() => {
+        fetchData();
+    }, []);
+
+    const fetchData = () => {
+        const token = localStorage.getItem('token');
+
+        fetch('/agent-data', {
+            method: 'GET',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            }
+        })
+        .then((response) => response.json())
+        .then((data) => {
+            setFirst_name(data.first_name);
+            setLast_name(data.last_name);
+            setEmail(data.email);
+            setDescription(data.description);
+            setPhone(data.phone);
+            setZipcode(data.zipcode);
+        })
+        .catch((error) => console.error("Error fetching agent data:", error));
+    };
+
     function handleSubmit(e) {
         e.preventDefault();
 
-        // Retrieve the token from localStorage or another storage method you use
         const token = localStorage.getItem('token');
+
+        const updatedData = {
+            first_name,
+            last_name,
+            email,
+            description,
+            phone,
+            zipcode
+        };
+
+        if (password) {
+            updatedData.password = password;
+        }
 
         fetch("/agent-data/update", {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`  // Include the token in the headers
+                "Authorization": `Bearer ${token}`
             },
-            body: JSON.stringify({
-                first_name,
-                last_name,
-                email,
-                description,
-                phone,
-                password,
-                zipcode
-            }),
+            body: JSON.stringify(updatedData),
         }).then((r) => {
             if (r.ok) {
                 console.log(`${first_name}'s profile updated successfully`);
