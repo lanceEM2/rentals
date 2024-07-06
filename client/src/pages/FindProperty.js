@@ -44,7 +44,7 @@ function FindProperty() {
   return (
     <>
       <div>
-        <h1>Filter By Property</h1>
+        <h1>Find Property For Sale/Rent</h1>
 
         <div>
           <form onSubmit={handleSubmit}>

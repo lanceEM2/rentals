@@ -1,30 +1,52 @@
 import React, { useState, useEffect } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 
 function AgentProperties() {
     const [data, setData] = useState(null);
+    const navigate = useNavigate();
 
     useEffect(() => {
         fetchData();
     }, []);
 
     const fetchData = () => {
-        // Retrieve the token from localStorage or wherever it is stored
         const token = localStorage.getItem('token');
 
         fetch('/agent-data', {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`  // Include the token in the headers
+                'Authorization': `Bearer ${token}`
             }
         })
         .then((response) => response.json())
         .then((jsonData) => {
-            console.log('Fetched data:', jsonData);
-            setData(jsonData);  // Update state with fetched data
+            setData(jsonData);
         })
         .catch((error) => console.error("Error fetching data:", error));
+    };
+
+    const handleDelete = (id) => {
+        const token = localStorage.getItem('token');
+
+        fetch("/resources/delete", {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": `Bearer ${token}`
+            },
+            body: JSON.stringify({
+                resource_type: 'property',
+                resource_id: id
+            })
+        }).then((response) => {
+            if (response.ok) {
+                console.log(`Property with id ${id} deleted successfully`);
+                fetchData(); // Refresh the property list after deletion
+            } else {
+                console.log("Failed to delete Property");
+            }
+        }).catch((error) => console.error("Error deleting Property:", error));
     };
 
     if (!data) {
@@ -45,12 +67,10 @@ function AgentProperties() {
                     <p>Property Category: {property.property_category}</p>
                     <p>Sale Type: {property.sale_type}</p>
                     <p>Status: {property.status}</p>
+                    <button onClick={() => navigate(`/agent/property-update/${property.id}`)}>Update Property</button>
+                    <button onClick={() => handleDelete(property.id)}>Delete Property</button>
                 </div>
             ))}
-
-            <Link to="/agent/property-update">Update Property</Link>
-            <Link to="/agent/property-delete">Delete Property</Link>
-
         </>
     );
 }

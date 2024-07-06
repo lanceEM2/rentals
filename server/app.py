@@ -5,11 +5,9 @@ from re import M
 from flask import Flask, jsonify, request, make_response, abort
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
-from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity, decode_token, get_jwt
+from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity, get_jwt
 from flask_restful import Api, Resource
 from flask_cors import CORS
-from flask_bcrypt import check_password_hash
-from werkzeug.security import generate_password_hash
 from models import db, Customer, Property, Agent, Land, Payment, TokenBlocklist
 
 # configuration
@@ -229,47 +227,40 @@ class Logout(Resource):
 api.add_resource(Logout, '/logout')
 
 
-# gets/fetches an agent's properties
-
-class GetAgentProperties(Resource):
+class GetPropertyById(Resource):
 
     @jwt_required()
-    def get(self):
+    def get(self, property_id):
         current_user_id = get_jwt_identity()
         agent = Agent.query.get(current_user_id)
         if not agent:
             return make_response(jsonify({'error': 'Unauthorized access'}), 403)
 
-        # Retrieve all properties associated with the agent
-        agent_properties = Property.query.filter_by(agent_id=current_user_id).all()
+        property = Property.query.filter_by(id=property_id, agent_id=current_user_id).first()
+        if not property:
+            return make_response(jsonify({'error': 'Property not found'}), 404)
 
-        properties = [property.to_dict() for property in agent_properties]
+        return make_response(jsonify(property.to_dict()), 200)
 
-        return make_response(jsonify(properties), 200)
-
-api.add_resource(GetAgentProperties, '/agent/properties')
+api.add_resource(GetPropertyById, '/agent/properties/<int:property_id>')
 
 
-# gets/fetches an agent's lands
-
-class GetAgentLands(Resource):
+class GetLandById(Resource):
 
     @jwt_required()
-    def get(self):
-
+    def get(self, land_id):
         current_user_id = get_jwt_identity()
         agent = Agent.query.get(current_user_id)
         if not agent:
             return make_response(jsonify({'error': 'Unauthorized access'}), 403)
 
-        #Retrieve all lands associated with the agent
-        agent_lands = Land.query.filter_by(agent_id=current_user_id).all()
+        land = Land.query.filter_by(id=land_id, agent_id=current_user_id).first()
+        if not land:
+            return make_response(jsonify({'error': 'Land not found'}), 404)
 
-        lands = [land.to_dict() for land in agent_lands]
+        return make_response(jsonify(land.to_dict()), 200)
 
-        return make_response(jsonify(lands), 200)
-
-api.add_resource(GetAgentLands, '/agent/lands')
+api.add_resource(GetLandById, '/agent/lands/<int:land_id>')
 
 
 # an agent to be able to add a new property or land in the system
@@ -414,6 +405,7 @@ class AgentDeletePropertyOrLand(Resource):
             abort(404, f'{resource_type.capitalize()} with id {resource_id} not found')
 
         db.session.delete(resource)
+        agent.no_of_properties -= 1  # Decrement the agent's no_of_properties
         db.session.commit()
 
         response_dict = {"message": f"{resource_type.capitalize()} successfully deleted"}
@@ -423,7 +415,7 @@ class AgentDeletePropertyOrLand(Resource):
 api.add_resource(AgentDeletePropertyOrLand, '/resources/delete')
 
 
-# an agent to be able to view his/her data(profile)
+# an agent to be able to view his/her data(profile) included with properties and lands
 
 class GetAgentData(Resource):
 

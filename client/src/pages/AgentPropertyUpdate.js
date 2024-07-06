@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 function AgentPropertyUpdate() {
+    const { id } = useParams();
     const [location, setLocation] = useState("");
     const [saleType, setSaleType] = useState("");
     const [price, setPrice] = useState("");
@@ -13,12 +15,12 @@ function AgentPropertyUpdate() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [id]);
 
     const fetchData = () => {
         const token = localStorage.getItem('token');
 
-        fetch('/agent/properties', {
+        fetch(`/agent/properties/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -35,15 +37,13 @@ function AgentPropertyUpdate() {
             setDescription(data.description);
             setPropertyCategory(data.property_category);
             setImage(data.image);
-            setStatus(data.status)
+            setStatus(data.status);
         })
         .catch((error) => console.error("Error fetching property data:", error));
     };
 
     function handleSubmit(e) {
         e.preventDefault();
-
-        // Retrieve the token from localStorage or another storage method you use
         const token = localStorage.getItem('token');
 
         const updatedData = {
@@ -62,11 +62,12 @@ function AgentPropertyUpdate() {
             method: "PATCH",
             headers: {
                 "Content-Type": "application/json",
-                "Authorization": `Bearer ${token}`  // Include the token in the headers
+                "Authorization": `Bearer ${token}`
             },
             body: JSON.stringify({
-                resource_type: 'property',  // Specify the resource type
-                updatedData
+                resource_type: 'property',
+                resource_id: id,
+                ...updatedData
             }),
         }).then((r) => {
             if (r.ok) {
@@ -97,7 +98,7 @@ function AgentPropertyUpdate() {
                 />
                 <label htmlFor="price">Enter Price</label>
                 <input
-                    type="integer"
+                    type="number"
                     id="price"
                     value={price}
                     onChange={(e) => setPrice(e.target.value)}
@@ -118,26 +119,26 @@ function AgentPropertyUpdate() {
                 />
                 <label htmlFor="bedroom">No of Bedrooms</label>
                 <input
-                    type="integer"
+                    type="number"
                     id="bedroom"
                     value={bedroom}
                     onChange={(e) => setBedroom(e.target.value)}
                 />
                 <label htmlFor="bathroom">No of Bathrooms</label>
                 <input
-                    type="integer"
+                    type="number"
                     id="bathroom"
                     value={bathroom}
                     onChange={(e) => setBathroom(e.target.value)}
                 />
                 <label htmlFor="propertyCategory">Enter Property Category</label>
                 <input
-                    type="propertyCategory"
+                    type="text"
                     id="propertyCategory"
                     value={propertyCategory}
                     onChange={(e) => setPropertyCategory(e.target.value)}
                 />
-                <label htmlFor="status">Enter status</label>
+                <label htmlFor="status">Enter Status</label>
                 <input
                     type="text"
                     id="status"

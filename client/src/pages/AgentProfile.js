@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
+import "./AgentProfile.css"; // Import your CSS file for styling
 
 function AgentProfile() {
     const [data, setData] = useState(null);
@@ -45,11 +46,11 @@ function AgentProfile() {
                 <p>No of Properties: {data.no_of_properties}</p>
             </div>
 
-            <Link to="/agent/profile-update">Update Profile</Link>
-            <Link to="/agent/add-property">Add Property</Link>
-            <Link to="/agent/add-land">Add Land</Link>
-            <Link to="/agent/properties">My Properties</Link>
-            <Link to="/agent/lands">My Lands</Link>
+            <Link to="/agent/profile-update" className="profile-btn">Update Profile</Link>
+            <Link to="/agent/add-property" className="profile-btn">Add Property</Link>
+            <Link to="/agent/add-land" className="profile-btn">Add Land</Link>
+            <Link to="/agent/properties" className="profile-btn">My Properties</Link>
+            <Link to="/agent/lands" className="profile-btn">My Lands</Link>
         </>
     );
 }

@@ -1,6 +1,8 @@
 import React, { useState, useEffect } from "react";
+import { useParams } from "react-router-dom";
 
 function AgentLandUpdate() {
+    const { id } = useParams();
     const [location, setLocation] = useState("");
     const [saleType, setSaleType] = useState("");
     const [price, setPrice] = useState("");
@@ -11,12 +13,12 @@ function AgentLandUpdate() {
 
     useEffect(() => {
         fetchData();
-    }, []);
+    }, [id]);
 
     const fetchData = () => {
         const token = localStorage.getItem('token');
 
-        fetch('/agent/lands', {
+        fetch(`/agent/lands/${id}`, {
             method: 'GET',
             headers: {
                 'Content-Type': 'application/json',
@@ -44,7 +46,7 @@ function AgentLandUpdate() {
 
         const updatedData = {
             location,
-            saleType,
+            sale_type: saleType,
             price,
             description,
             size,
@@ -60,7 +62,8 @@ function AgentLandUpdate() {
             },
             body: JSON.stringify({
                 resource_type: 'land',  // Specify the resource type
-                updatedData
+                resource_id: id,
+                ...updatedData
             }),
         }).then((r) => {
             if (r.ok) {

@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback } from "react";
 
-function PropertyFilter({ data, onFilter }) {
+function LandFilter({ data, onFilter }) {
     const [saleType, setSaleType] = useState("Any");
     const [minPrice, setMinPrice] = useState("Any");
     const [maxPrice, setMaxPrice] = useState("Any");
@@ -44,8 +44,8 @@ function PropertyFilter({ data, onFilter }) {
                 <label htmlFor="saleType">Sale Type</label>
                 <select onChange={(e) => setSaleType(e.target.value)} name="saleType" id="saleType">
                     <option value="Any">Any</option>
-                    <option value="sale">For sale</option>
-                    <option value="rent">For rent</option>
+                    <option value="for sale">For sale</option>
+                    <option value="for rent">For rent</option>
                 </select>
             </div>
 
@@ -88,4 +88,4 @@ function PropertyFilter({ data, onFilter }) {
     );
 }
 
-export default PropertyFilter;
+export default LandFilter;

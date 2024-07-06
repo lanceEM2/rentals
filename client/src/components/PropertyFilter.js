@@ -64,8 +64,8 @@ function PropertyFilter({ data, onFilter }) {
                 <label htmlFor="saleType">Sale Type</label>
                 <select onChange={(e) => setSaleType(e.target.value)} name="saleType" id="saleType">
                     <option value="Any">Any</option>
-                    <option value="sale">for sale</option>
-                    <option value="rent">for rent</option>
+                    <option value="for sale">for sale</option>
+                    <option value="for rent">for rent</option>
                 </select>
             </div>
 
