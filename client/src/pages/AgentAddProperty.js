@@ -1,8 +1,10 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import GoogleMap from "../components/GoogleMap";
 
 function AgentAddProperty() {
     const [location, setLocation] = useState("");
+    const [selectedLocation, setSelectedLocation] = useState(null);
     const [price, setPrice] = useState("");
     const [description, setDescription] = useState("");
     const [bedroom, setBedroom] = useState("");
@@ -26,6 +28,8 @@ function AgentAddProperty() {
             body: JSON.stringify({
                 resource_type: 'property',  // Specify the resource type
                 location,
+                latitude: selectedLocation ? selectedLocation.lat : null,
+                longitude: selectedLocation ? selectedLocation.lng : null,
                 price,
                 description,
                 bedroom,
@@ -63,6 +67,9 @@ function AgentAddProperty() {
                     value={location}
                     onChange={(e) => setLocation(e.target.value)}
                 />
+
+                <GoogleMap onLocationSelect={setSelectedLocation} />
+
                 <label htmlFor="price">Price</label>
                 <input
                     type="number"

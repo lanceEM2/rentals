@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import './PropertyFilter.css'; // Import the CSS file
 
 function PropertyFilter({ data, onFilter }) {
     const [saleType, setSaleType] = useState("Any");
@@ -49,74 +50,77 @@ function PropertyFilter({ data, onFilter }) {
     }, [filterData]);
 
     return (
-        <>
-            <div>
-                <label htmlFor="propertyType">Filter Property By:</label>
-                <select onChange={(e) => setType(e.target.value)} name="propertyType" id="propertyType">
-                    <option value="Any">Any</option>
-                    <option value="house">House</option>
-                    <option value="apartment">Apartment</option>
-                    <option value="townhouse">Townhouse</option>
-                </select>
-            </div>
-
-            <div>
-                <label htmlFor="saleType">Sale Type</label>
-                <select onChange={(e) => setSaleType(e.target.value)} name="saleType" id="saleType">
-                    <option value="Any">Any</option>
-                    <option value="for sale">for sale</option>
-                    <option value="for rent">for rent</option>
-                </select>
-            </div>
-
-            <div>
-                <label htmlFor="minPrice">Min Price</label>
-                <select onChange={(e) => setMinPrice(e.target.value)} name="minPrice" id="minPrice">
-                    <option value="Any">Any</option>
-                    <option value="KSH20000">KSH 20000</option>
-                    <option value="KSH50000">KSH 50000</option>
-                    <option value="KSH100000">KSH 100000</option>
-                    <option value="KSH250000">KSH 250000</option>
-                    <option value="KSH500000">KSH 500000</option>
-                    <option value="KSH1000000">KSH 1000000</option>
-                </select>
-            </div>
-            <div>
-                <label htmlFor="maxPrice">Max Price</label>
-                <select onChange={(e) => setMaxPrice(e.target.value)} name="maxPrice" id="maxPrice">
-                    <option value="Any">Any</option>
-                    <option value="KSH50000">KSH 50000</option>
-                    <option value="KSH250000">KSH 250000</option>
-                    <option value="KSH500000">KSH 500000</option>
-                    <option value="KSH1000000">KSH 1000000</option>
-                    <option value="KSH5000000">KSH 5000000</option>
-                    <option value="KSH10000000">KSH 10000000</option>
-                </select>
-            </div>
-            <div>
-                <label htmlFor="bedrooms">Bedrooms</label>
-                <select onChange={(e) => setBedrooms(e.target.value)} name="bedrooms" id="bedrooms">
-                    <option value="Any">Any</option>
-                    <option value="1">1+</option>
-                    <option value="2">2+</option>
-                    <option value="3">3+</option>
-                    <option value="4">4+</option>
-                    <option value="5">5+</option>
-                </select>
-            </div>
-            <div>
-                <label htmlFor="bathrooms">Bathrooms</label>
-                <select onChange={(e) => setBathrooms(e.target.value)} name="bathrooms" id="bathrooms">
-                    <option value="Any">Any</option>
-                    <option value="1">1+</option>
-                    <option value="2">2+</option>
-                    <option value="3">3+</option>
-                    <option value="4">4+</option>
-                    <option value="5">5+</option>
-                </select>
-            </div>
-        </>
-    );
+        <div className="filter-container">
+          <div className="filter-item">
+            <label htmlFor="propertyType">Category</label>
+            <select onChange={(e) => setType(e.target.value)} name="propertyType" id="propertyType">
+              <option value="Any">Any</option>
+              <option value="house">House</option>
+              <option value="apartment">Apartment</option>
+              <option value="townhouse">Townhouse</option>
+            </select>
+          </div>
+    
+          <div className="filter-item">
+            <label htmlFor="saleType">Sale Type</label>
+            <select onChange={(e) => setSaleType(e.target.value)} name="saleType" id="saleType">
+              <option value="Any">Any</option>
+              <option value="for sale">For Sale</option>
+              <option value="for rent">For Rent</option>
+            </select>
+          </div>
+    
+          <div className="filter-item">
+            <label htmlFor="minPrice">Min Price</label>
+            <select onChange={(e) => setMinPrice(e.target.value)} name="minPrice" id="minPrice">
+              <option value="Any">Any</option>
+              <option value="KSH20000">KSH 20000</option>
+              <option value="KSH50000">KSH 50000</option>
+              <option value="KSH100000">KSH 100000</option>
+              <option value="KSH250000">KSH 250000</option>
+              <option value="KSH500000">KSH 500000</option>
+              <option value="KSH1000000">KSH 1000000</option>
+            </select>
+          </div>
+    
+          <div className="filter-item">
+            <label htmlFor="maxPrice">Max Price</label>
+            <select onChange={(e) => setMaxPrice(e.target.value)} name="maxPrice" id="maxPrice">
+              <option value="Any">Any</option>
+              <option value="KSH50000">KSH 50000</option>
+              <option value="KSH250000">KSH 250000</option>
+              <option value="KSH500000">KSH 500000</option>
+              <option value="KSH1000000">KSH 1000000</option>
+              <option value="KSH5000000">KSH 5000000</option>
+              <option value="KSH10000000">KSH 10000000</option>
+            </select>
+          </div>
+    
+          <div className="filter-item">
+            <label htmlFor="bedrooms">Bedrooms</label>
+            <select onChange={(e) => setBedrooms(e.target.value)} name="bedrooms" id="bedrooms">
+              <option value="Any">Any</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+              <option value="5">5+</option>
+            </select>
+          </div>
+    
+          <div className="filter-item">
+            <label htmlFor="bathrooms">Bathrooms</label>
+            <select onChange={(e) => setBathrooms(e.target.value)} name="bathrooms" id="bathrooms">
+              <option value="Any">Any</option>
+              <option value="1">1+</option>
+              <option value="2">2+</option>
+              <option value="3">3+</option>
+              <option value="4">4+</option>
+              <option value="5">5+</option>
+            </select>
+          </div>
+        </div>
+      );
 }
 
 export default PropertyFilter;

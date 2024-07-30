@@ -9,6 +9,8 @@ class BaseProperty(db.Model):
 
     id = db.Column(db.Integer, primary_key=True)
     location = db.Column(db.String)
+    latitude = db.Column(db.Float)  # Added latitude column
+    longitude = db.Column(db.Float)  # Added longitude column
     sale_type = db.Column(db.String)
     price = db.Column(db.Integer)
     description = db.Column(db.String)
@@ -107,9 +109,23 @@ class Payment(db.Model, SerializerMixin):
     agent_id = db.Column(db.Integer, db.ForeignKey('agent.id'))
     amount = db.Column(db.Float)
     payment_date = db.Column(db.DateTime, default=datetime.utcnow)
+    payed_by = db.Column(db.String, default='mpesa')
+    subscription_type = db.Column(db.String)
+    next_payment = db.Column(db.DateTime)
     status = db.Column(db.String, default='Pending')
 
     agent = db.relationship('Agent', back_populates='payments')
+
+    def to_dict(self):
+        return {
+            'id': self.id,
+            'agent_id': self.agent_id,
+            'amount': self.amount,
+            'payment_date': self.payment_date,
+            'payed_by': self.payed_by,
+            'subscription_type': self.subscription_type,
+            'status': self.status
+        }
 
 class TokenBlocklist(db.Model):
     __tablename__ = 'token_blocklist'

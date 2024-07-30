@@ -1,8 +1,13 @@
 #!usr/bin/env python3
 
+import os
+from pathlib import Path
 from datetime import date, timedelta, datetime
+import calendar
+from reportlab.lib.pagesizes import letter
+from reportlab.pdfgen import canvas
 from re import M
-from flask import Flask, jsonify, request, make_response, abort
+from flask import Flask, jsonify, request, make_response, abort, send_from_directory
 from flask_migrate import Migrate
 from flask_bcrypt import Bcrypt
 from flask_jwt_extended import create_access_token, JWTManager, jwt_required, get_jwt_identity, get_jwt
@@ -291,6 +296,8 @@ class AgentNewPropertyOrLand(Resource):
         image = data.get('image')
         property_category = data.get('property_category')
         status = data.get('status')
+        latitude = data.get('latitude')
+        longitude = data.get('longitude')
 
         if resource_type == 'property':
             bedroom = data.get('bedroom')
@@ -306,6 +313,8 @@ class AgentNewPropertyOrLand(Resource):
                 image=image,
                 property_category=property_category,
                 status=status,
+                latitude=latitude,
+                longitude=longitude,
                 agent_id=current_user_id
             )
 
@@ -321,6 +330,8 @@ class AgentNewPropertyOrLand(Resource):
                 image=image,
                 property_category=property_category,
                 status=status,
+                latitude=latitude,
+                longitude=longitude,
                 agent_id=current_user_id
             )
 
@@ -476,13 +487,41 @@ class AgentPayment(Resource):
             return make_response(jsonify({'error': 'Unauthorized access'}), 403)
 
         data = request.get_json()
-        amount = data.get('amount')
+        subscription_type = data.get('subscription_type', 'basic')
+        payed_by = data.get('payed_by')
         # Mock payment processing logic
         payment_status = 'Completed'
+
+        # validate subscription_type
+        if subscription_type not in ['basic', 'premium']:
+            return make_response(jsonify({'error': 'Invalid subscription type'}), 400)
+
+        # set amount based on subscription_type
+        amount = 1000 if subscription_type == 'basic' else 3000
+
+        # validate payed_by
+        if payed_by not in ['mpesa', 'paypal', 'mastercard', 'visa']:
+            return make_response(jsonify({'error': 'Invalid payment method'}), 400)
+
+        # calculate next payment date
+        def calculate_next_payment(payment_date):
+            year = payment_date.year
+            month = payment_date.month + 1
+            if month > 12:
+                month = 1
+                year += 1
+            day = min(payment_date.day, calendar.monthrange(year, month)[1])
+            return payment_date.replace(year=year, month=month, day=day)
+
+        payment_date = datetime.utcnow()
+        next_payment = calculate_next_payment(payment_date)
 
         new_payment = Payment(
             agent_id=current_user_id,
             amount=amount,
+            subscription_type=subscription_type,
+            payed_by=payed_by,
+            next_payment=next_payment,
             status=payment_status
         )
 
@@ -492,20 +531,36 @@ class AgentPayment(Resource):
         # Generate PDF after successful payment
         pdf_path = generate_payment_pdf(agent, new_payment)
 
-        return make_response(jsonify({'message': 'Payment successful', 'pdf': pdf_path}), 201)
+        return make_response(jsonify({'message': 'Payment successful', 'pdf': f'/download/payment_{new_payment.id}.pdf'}), 201)
 
 api.add_resource(AgentPayment, '/agent/payment')
 
 def generate_payment_pdf(agent, payment):
-    # Mock function to generate a PDF receipt
-    # Use a library like ReportLab or WeasyPrint to generate the actual PDF
-    pdf_path = f'receipts/payment_{payment.id}.pdf'
-    with open(pdf_path, 'w') as f:
-        f.write(f"Receipt for {agent.first_name} {agent.last_name}\n")
-        f.write(f"Amount: {payment.amount}\n")
-        f.write(f"Date: {payment.payment_date}\n")
-        f.write(f"Status: {payment.status}\n")
+    # Get the user's Downloads folder
+    downloads_path = str(Path.home() / "Downloads")
+
+    # Ensure the receipts directory exists in the Downloads folder
+    receipts_path = os.path.join(downloads_path, 'receipts')
+    os.makedirs(receipts_path, exist_ok=True)
+
+    # Path for the PDF file
+    pdf_path = os.path.join(receipts_path, f'payment_{payment.id}.pdf')
+
+    # Create PDF with ReportLab
+    c = canvas.Canvas(pdf_path, pagesize=letter)
+    c.drawString(100, 750, f"Receipt for {agent.first_name} {agent.last_name}")
+    c.drawString(100, 730, f"Amount: {payment.amount}")
+    c.drawString(100, 710, f"Date: {payment.payment_date}")
+    c.drawString(100, 690, f"Next Payment Date: {payment.next_payment}")
+    c.drawString(100, 690, f"Status: {payment.status}")
+    c.save()
+
     return pdf_path
+
+@app.route('/download/<filename>')
+def download_file(filename):
+    downloads_path = str(Path.home() / "Downloads" / "receipts")
+    return send_from_directory(directory=downloads_path, path=filename, as_attachment=True)    
 
 
 # gets/fetches all properties and lands - to be viewed by everyone
